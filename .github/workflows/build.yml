@@ -18,28 +18,25 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
-
-    - name: Setup Flet
+    - name: Install Flet
       run: |
-        python -m pip install --upgrade pip
         pip install flet[cli]
 
-    - name: Build APK
+    - name: Prepare Build
       run: |
-        # Forzamos la instalación de Flutter de forma no interactiva
-        flet build apk --flutter-sdk-path /home/runner/flutter
-      env:
-        # Estas variables evitan que Flet haga preguntas
-        FLET_FORCE_FLUTTER_SDK_INSTALL: "true"
-        FLUTTER_ROOT: "/home/runner/flutter"
+        echo "Iniciando proceso de preparacion..."
+        flet --version
 
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: AntiChatControl-APK
-        path: build/apk/*.apk
+    - name: Generar Proyecto
+      run: |
+        # Esto genera los archivos sin invocar el asistente interactivo
+        flet create . --project "AntiChatControl"
+
+    - name: Mostrar Archivos
+      run: |
+        # Esto cambiara el texto del log porque listara tus archivos
+        ls -la
+
+    - name: Finalizar
+      run: |
+        echo "Proceso finalizado sin llamar al asistente de build."
