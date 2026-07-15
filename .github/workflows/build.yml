@@ -2,7 +2,8 @@ name: Build Flet Android APK
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -10,42 +11,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - name: Set up Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'zulu'
-        java-version: '17'
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: "17"
 
-    - name: Install Flutter SDK
-      uses: subosito/flutter-action@v2
-      with:
-        flutter-version: '3.22.0'
-        channel: 'stable'
+      # ESTE ES EL PASO CLAVE QUE TE FALTA
+      - name: Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.22.0"
+          channel: "stable"
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flet[cli] flet-web==0.86.0
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "flet[all]==0.86.0"
 
-    - name: Build APK
-      run: |
-        # Forzar la configuración sin preguntas
-        flutter config --no-analytics
-        # Ejecutar build sin interactividad
-        flet build apk --skip-flutter-sdk-check
-      env:
-        FLET_FORCE_FLUTTER_SDK_INSTALL: "false"
+      - name: Build APK
+        run: |
+          # Aceptamos licencias de Android antes de compilar
+          flutter doctor --android-licenses
+          yes | flet build apk
 
-    - name: Upload APK Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: AntiChatControl-APK
-        path: build/apk/*.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AntiChatControl-APK
+          path: build/apk/*.apk
